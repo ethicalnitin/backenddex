@@ -36,7 +36,7 @@ app.post('/track-event', async (req, res) => {
         const hashedZip = user_data.zip ? crypto.createHash('sha256').update(user_data.zip).digest('hex') : undefined;
 
         // Get client IP address and user agent (passed via headers)
-        const clientIpAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        const clientIpAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '8.8.8.8';
         const clientUserAgent = req.headers['user-agent'];
 
         // Construct the payload for the API request
