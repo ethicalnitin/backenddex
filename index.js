@@ -15,6 +15,12 @@ const ACCESS_TOKEN = 'EAAFLvGWR7QQBO1MfUFa7PGYFRi2CVkeSkroV4eUMJT1kyeTCNRUPVUzHz
 // Conversion API event endpoint
 const FB_API_URL = `https://graph.facebook.com/v14.0/1055377212772927/events?access_token=${ACCESS_TOKEN}`;
 
+// Root route to prevent the "Cannot GET" error
+app.get('/', (req, res) => {
+    res.send('Welcome to the backend server. This is the root URL.');
+});
+
+// API endpoint to track events
 app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, custom_data, user_data, event_source_url, action_source } = req.body;
 
