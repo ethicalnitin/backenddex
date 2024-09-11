@@ -2,9 +2,17 @@ const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
+const cors = require('cors');  // Import cors
 
 const app = express();
 const PORT = process.env.PORT || 3037;
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: 'https://tradingview.cybermafia.shop', // Replace with your frontend URL
+  methods: ['GET', 'POST'], // Allow specific methods
+  credentials: true // If you need to include cookies or authentication headers
+}));
 
 app.use(bodyParser.json());
 
