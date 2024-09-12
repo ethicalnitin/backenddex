@@ -83,7 +83,8 @@ app.post('/track-event', async (req, res) => {
         console.log('Facebook API response:', response.data);
 
         // Respond with success if the event was tracked successfully
-        res.status(200).send('Event tracked successfully');
+       res.status(200).json({ success: true, message: 'Event tracked successfully' });
+
     } catch (error) {
         if (error.response) {
             console.error('Error response data:', error.response.data);
@@ -93,7 +94,11 @@ app.post('/track-event', async (req, res) => {
         } else {
             console.error('Error', error.message);
         }
-        res.status(500).send('Error tracking event');
+       res.status(500).json({
+    success: false,
+    message: 'Error tracking event',
+    error: error.response ? error.response.data : error.message
+});
     }
 });
 
