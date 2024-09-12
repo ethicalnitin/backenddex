@@ -59,7 +59,7 @@ app.post('/track-event', async (req, res) => {
         const clientUserAgent = req.headers['user-agent'];
 
         // Construct the payload for the API request
-        const payload = {
+       const payload = {
             data: [{
                 event_name,
                 event_time: eventTimestamp,
@@ -74,7 +74,8 @@ app.post('/track-event', async (req, res) => {
                     client_user_agent: clientUserAgent
                 },
                 custom_data: custom_data || {}
-            }]
+            }],
+            test_event_code: 'TEST68550'  // Include the test event code from Event Manager
         };
 
         // Send the request to Facebook's API
