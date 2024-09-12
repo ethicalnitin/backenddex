@@ -36,6 +36,7 @@ function isValidIpAddress(ip) {
 
 app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, custom_data, user_data, event_source_url, action_source } = req.body;
+   console.log('Received data:', req.body);
 
     try {
         // Ensure event_time is a valid Unix timestamp and within 7 days
