@@ -78,7 +78,8 @@ app.post('/track-event', async (req, res) => {
         };
 
         // Send the request to Facebook's API
-        const response = await axios.post(FB_API_URL, payload);
+        const response = await axios.post(FB_API_URL, payload, { timeout: 5000 });
+        console.log('Facebook API response:', response.data);
 
         // Respond with success if the event was tracked successfully
         res.status(200).send('Event tracked successfully');
