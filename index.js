@@ -75,7 +75,7 @@ app.post('/track-event', async (req, res) => {
                 },
                 custom_data: custom_data || {}
             }],
-            test_event_code: 'TEST65090'  // Include the test event code from Event Manager
+          
         };
 
         // Send the request to Facebook's API
