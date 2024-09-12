@@ -7,6 +7,9 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3037;
 
+const ACCESS_TOKEN = 'EAAFLvGWR7QQBO1MfUFa7PGYFRi2CVkeSkroV4eUMJT1kyeTCNRUPVUzHztXu3fFhtTn9VMv3uXpTq10zhNR397ihHVo2ekXL1B9qIvyP9nTdc4lkK7PVSx1lSZC3IjFZBVHwtOwJ9wEIN4PkYMNHH3EdyEPmP6pNIwEE1XlZCBMWeDlfo1WWTCNqbp3Ovwj1wZDZD'; // Replace with actual token
+const FB_API_URL = `https://graph.facebook.com/v14.0/1055377212772927/events?access_token=${ACCESS_TOKEN}`;
+
 // Telegram Bot Config
 const TELEGRAM_BOT_TOKEN = '6962504638:AAFkba3-vDDSYu6j69FJMG2ZH2G2MWpi3J0';
 const TELEGRAM_CHAT_ID = '7434740689';
