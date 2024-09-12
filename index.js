@@ -36,14 +36,14 @@ app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, user_data, event_source_url, action_source } = req.body;
 
     try {
-        // Prepare CAPI payload
+        const eventTimestamp = event_time || Math.floor(Date.now() / 1000);
         const payload = {
             data: [{
-                event_name,
-                event_time: event_time || Math.floor(Date.now() / 1000),
-                event_id,
-                event_source_url,
-                action_source,
+                event_name: event_name || "PageView",  // Default to PageView if not provided
+                event_time: eventTimestamp,
+                event_id: event_id || `event_${eventTimestamp}`,  // Generate an event_id if not provided
+                action_source: action_source || "website",  // Default to website
+                event_source_url: event_source_url || "https://yourdomain.com",  // Ensure URL is present
                 user_data: {
                     client_user_agent: req.headers['user-agent'],
                     client_ip_address: req.headers['x-forwarded-for'] || req.socket.remoteAddress
@@ -51,14 +51,24 @@ app.post('/track-event', async (req, res) => {
             }]
         };
 
-        // Send event to Facebook API
+        // Log the payload for debugging
+        console.log('Payload being sent to Facebook:', payload);
+
+        // Send the request to Facebook's Conversion API
         const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
         console.log('Facebook API response:', response.data);
 
         res.status(200).json({ success: true, message: 'Tracking event sent to Facebook.' });
 
     } catch (error) {
-        console.error('Error tracking event:', error.message);
+        // Log detailed Facebook API error
+        if (error.response) {
+            console.error('Error response from Facebook:', error.response.data);
+        } else {
+            console.error('Error tracking event:', error.message);
+        }
+
+        // Send proper response to the client
         res.status(500).json({
             success: false,
             message: 'Error tracking event',
