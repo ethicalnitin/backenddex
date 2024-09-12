@@ -7,11 +7,19 @@ const cors = require('cors');  // Import cors
 const app = express();
 const PORT = process.env.PORT || 3037;
 
-// Enable CORS for all routes
+// Enable CORS for both 'tradingview.cybermafia.shop' and 'payments.cybermafia.shop'
+const allowedOrigins = ['https://tradingview.cybermafia.shop', 'https://payments.cybermafia.shop'];
+
 app.use(cors({
-  origin: 'https://tradingview.cybermafia.shop', // Replace with your frontend URL
-  methods: ['GET', 'POST'], // Allow specific methods
-  credentials: true // If you need to include cookies or authentication headers
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST'],  // Specify allowed methods
+  credentials: true          // If you need to include cookies or authentication headers
 }));
 
 app.use(bodyParser.json());
@@ -28,6 +36,7 @@ function isValidIpAddress(ip) {
 
 app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, custom_data, user_data, event_source_url, action_source } = req.body;
+   console.log('Received data:', req.body);
 
     try {
         // Ensure event_time is a valid Unix timestamp and within 7 days
