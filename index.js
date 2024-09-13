@@ -37,8 +37,9 @@ function isValidIpAddress(ip) {
     return ipRegex.test(ip);
 }
 
+// *** Make sure to add 'async' here ***
 app.post('/track-event', async (req, res) => {
-    const { event_name, event_time, event_id, user_data, event_source_url, action_source, custom_data } = req.body;
+    const { event_name, event_time, event_id, user_data, event_source_url, action_source } = req.body;
 
     try {
         const eventTimestamp = event_time || Math.floor(Date.now() / 1000);
@@ -60,10 +61,6 @@ app.post('/track-event', async (req, res) => {
                 user_data: {
                     client_user_agent: req.headers['user-agent'],
                     client_ip_address: clientIpAddress
-                },
-                custom_data: {
-                    value: custom_data?.value || 0,  // Include the value (amount)
-                    currency: custom_data?.currency || 'INR'  // Include currency, default to 'INR'
                 }
             }]
         };
@@ -71,14 +68,13 @@ app.post('/track-event', async (req, res) => {
         // Log the payload for debugging
         console.log('Payload being sent to Facebook:', JSON.stringify(payload, null, 2));
 
-        // Send the request to Facebook's Conversion API
+        // *** Await must be in an async function ***
         const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
         console.log('Facebook API response:', response.data);
 
         res.status(200).json({ success: true, message: 'Tracking event sent to Facebook.' });
 
     } catch (error) {
-        // Log detailed Facebook API error
         if (error.response) {
             console.error('Error response from Facebook:', error.response.data);
             console.error('Error response status:', error.response.status);
@@ -86,33 +82,6 @@ app.post('/track-event', async (req, res) => {
             console.error('Error tracking event:', error.message);
         }
 
-        // Send proper response to the client
-        res.status(500).json({
-            success: false,
-            message: 'Error tracking event',
-            error: error.response ? error.response.data : error.message
-        });
-    }
-});
-        // Log the payload for debugging
-        console.log('Payload being sent to Facebook:', JSON.stringify(payload, null, 2));
-
-        // Send the request to Facebook's Conversion API
-        const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
-        console.log('Facebook API response:', response.data);
-
-        res.status(200).json({ success: true, message: 'Tracking event sent to Facebook.' });
-
-    } catch (error) {
-        // Log detailed Facebook API error
-        if (error.response) {
-            console.error('Error response from Facebook:', error.response.data);
-            console.error('Error response status:', error.response.status);
-        } else {
-            console.error('Error tracking event:', error.message);
-        }
-
-        // Send proper response to the client
         res.status(500).json({
             success: false,
             message: 'Error tracking event',
@@ -126,7 +95,6 @@ app.post('/submit', async (req, res) => {
     const { amountDropdown, utr, email, username } = req.body;
 
     try {
-        // Send form data to Telegram
         const telegramMessage = `
          💸 New Form Submission:
           - Amount: ${amountDropdown}
