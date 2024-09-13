@@ -38,34 +38,34 @@ function isValidIpAddress(ip) {
 
 // Facebook Pixel Event (CAPI) Tracking Endpoint
 app.post('/track-event', async (req, res) => {
-    const { event_name, event_time, event_id, user_data, event_source_url, action_source } = req.body;
+    const { event_name, event_time, event_id, user_data, event_source_url, action_source, amountDropdown } = req.body;
 
     try {
         const eventTimestamp = event_time || Math.floor(Date.now() / 1000);
         let clientIpAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-        // Validate client IP address
         if (!isValidIpAddress(clientIpAddress)) {
-            clientIpAddress = '8.8.8.8';  // Fallback to a valid IP address (Google's public DNS)
+            clientIpAddress = '8.8.8.8';  // Fallback to a valid IP address
             console.log('Invalid IP detected, falling back to default IP.');
         }
 
         const payload = {
             data: [{
-                event_name: event_name || "PageView",  // Default to PageView if not provided
+                event_name: event_name || "Purchase",  // 'Purchase' for tracking purchase event
                 event_time: eventTimestamp,
-                event_id: event_id || `event_${eventTimestamp}`,  // Generate an event_id if not provided
-                action_source: action_source || "website",  // Default to website
-                event_source_url: event_source_url || "https://yourdomain.com",  // Ensure URL is present
+                event_id: event_id || `event_${eventTimestamp}`,
+                action_source: action_source || "website",
+                event_source_url: event_source_url || "https://yourdomain.com",
                 user_data: {
                     client_user_agent: req.headers['user-agent'],
                     client_ip_address: clientIpAddress
+                },
+                custom_data: {
+                    value: amountDropdown,  // Pass the amount (e.g., ₹495)
+                    currency: 'INR'  // Currency code (e.g., USD, INR)
                 }
             }]
         };
-
-        // Log the payload for debugging
-        console.log('Payload being sent to Facebook:', JSON.stringify(payload, null, 2));
 
         // Send the request to Facebook's Conversion API
         const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
@@ -88,6 +88,7 @@ app.post('/track-event', async (req, res) => {
         });
     }
 });
+
 
 // Form Submission Endpoint (to send Telegram message)
 app.post('/submit', async (req, res) => {
