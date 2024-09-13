@@ -27,6 +27,8 @@ app.use(bodyParser.json());
 const ACCESS_TOKEN = 'EAAFLvGWR7QQBO1MfUFa7PGYFRi2CVkeSkroV4eUMJT1kyeTCNRUPVUzHztXu3fFhtTn9VMv3uXpTq10zhNR397ihHVo2ekXL1B9qIvyP9nTdc4lkK7PVSx1lSZC3IjFZBVHwtOwJ9wEIN4PkYMNHH3EdyEPmP6pNIwEE1XlZCBMWeDlfo1WWTCNqbp3Ovwj1wZDZD';
 
 const FB_API_URL = `https://graph.facebook.com/v14.0/1055377212772927/events?access_token=${ACCESS_TOKEN}`;
+const TELEGRAM_BOT_TOKEN = '6962504638:AAFkba3-vDDSYu6j69FJMG2ZH2G2MWpi3J0';
+const TELEGRAM_CHAT_ID = '7434740689';
 
 // Helper function to validate IP address format
 function isValidIpAddress(ip) {
@@ -34,9 +36,10 @@ function isValidIpAddress(ip) {
     return ipRegex.test(ip);
 }
 
+// Facebook Pixel Event (CAPI) Tracking Endpoint
 app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, custom_data, user_data, event_source_url, action_source } = req.body;
-   console.log('Received data:', req.body);
+    console.log('Received data:', req.body);
 
     try {
         // Ensure event_time is a valid Unix timestamp and within 7 days
@@ -59,7 +62,7 @@ app.post('/track-event', async (req, res) => {
         const clientUserAgent = req.headers['user-agent'];
 
         // Construct the payload for the API request
-       const payload = {
+        const payload = {
             data: [{
                 event_name,
                 event_time: eventTimestamp,
@@ -75,7 +78,6 @@ app.post('/track-event', async (req, res) => {
                 },
                 custom_data: custom_data || {}
             }],
-          
         };
 
         // Send the request to Facebook's API
@@ -83,7 +85,7 @@ app.post('/track-event', async (req, res) => {
         console.log('Facebook API response:', response.data);
 
         // Respond with success if the event was tracked successfully
-       res.status(200).json({ success: true, message: 'Event tracked successfully' });
+        res.status(200).json({ success: true, message: 'Event tracked successfully' });
 
     } catch (error) {
         if (error.response) {
@@ -94,11 +96,40 @@ app.post('/track-event', async (req, res) => {
         } else {
             console.error('Error', error.message);
         }
-       res.status(500).json({
-    success: false,
-    message: 'Error tracking event',
-    error: error.response ? error.response.data : error.message
+        res.status(500).json({
+            success: false,
+            message: 'Error tracking event',
+            error: error.response ? error.response.data : error.message
+        });
+    }
 });
+
+// Form Submission Endpoint (to send Telegram message)
+app.post('/submit', async (req, res) => {
+    const { amountDropdown, utr, email, username } = req.body;
+
+    try {
+        const telegramMessage = `
+         💸 New Form Submission:
+          - Amount: ${amountDropdown}
+          - UTR/UPI Reference ID: ${utr}
+          - Email: ${email}
+          - TradingView Username: ${username}
+        `;
+        await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            chat_id: TELEGRAM_CHAT_ID,
+            text: telegramMessage
+        });
+
+        res.status(200).json({ success: true, message: 'Form submission tracked and Telegram notification sent.' });
+
+    } catch (error) {
+        console.error('Error sending Telegram message:', error.message);
+        res.status(500).json({
+            success: false,
+            message: 'Error sending Telegram notification',
+            error: error.message
+        });
     }
 });
 
