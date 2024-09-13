@@ -32,11 +32,23 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // Facebook Pixel Event (CAPI) Tracking Endpoint
+function isValidIpAddress(ip) {
+    const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    return ipRegex.test(ip);
+}
+
 app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, user_data, event_source_url, action_source } = req.body;
 
     try {
         const eventTimestamp = event_time || Math.floor(Date.now() / 1000);
+        let clientIpAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+        // Validate client IP address
+        if (!isValidIpAddress(clientIpAddress)) {
+            clientIpAddress = '8.8.8.8';  // Fallback to a valid IP address (Google's public DNS)
+            console.log('Invalid IP detected, falling back to default IP.');
+        }
 
         const payload = {
             data: [{
@@ -47,7 +59,7 @@ app.post('/track-event', async (req, res) => {
                 event_source_url: event_source_url || "https://yourdomain.com",  // Ensure URL is present
                 user_data: {
                     client_user_agent: req.headers['user-agent'],
-                    client_ip_address: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+                    client_ip_address: clientIpAddress
                 }
             }]
         };
