@@ -1,7 +1,6 @@
 const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
-const crypto = require('crypto');
 const cors = require('cors');
 
 const app = express();
@@ -31,13 +30,13 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-// Facebook Pixel Event (CAPI) Tracking Endpoint
+// Function to validate IP addresses
 function isValidIpAddress(ip) {
     const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     return ipRegex.test(ip);
 }
 
-// *** Make sure to add 'async' here ***
+// Facebook Pixel Event (CAPI) Tracking Endpoint
 app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, user_data, event_source_url, action_source } = req.body;
 
@@ -68,7 +67,7 @@ app.post('/track-event', async (req, res) => {
         // Log the payload for debugging
         console.log('Payload being sent to Facebook:', JSON.stringify(payload, null, 2));
 
-        // *** Await must be in an async function ***
+        // Send the request to Facebook's Conversion API
         const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
         console.log('Facebook API response:', response.data);
 
