@@ -37,6 +37,7 @@ app.post('/track-event', async (req, res) => {
 
     try {
         const eventTimestamp = event_time || Math.floor(Date.now() / 1000);
+
         const payload = {
             data: [{
                 event_name: event_name || "PageView",  // Default to PageView if not provided
@@ -52,7 +53,7 @@ app.post('/track-event', async (req, res) => {
         };
 
         // Log the payload for debugging
-        console.log('Payload being sent to Facebook:', payload);
+        console.log('Payload being sent to Facebook:', JSON.stringify(payload, null, 2));
 
         // Send the request to Facebook's Conversion API
         const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
@@ -64,6 +65,7 @@ app.post('/track-event', async (req, res) => {
         // Log detailed Facebook API error
         if (error.response) {
             console.error('Error response from Facebook:', error.response.data);
+            console.error('Error response status:', error.response.status);
         } else {
             console.error('Error tracking event:', error.message);
         }
@@ -72,7 +74,7 @@ app.post('/track-event', async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error tracking event',
-            error: error.message
+            error: error.response ? error.response.data : error.message
         });
     }
 });
