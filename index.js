@@ -111,10 +111,10 @@ app.post('/submit', async (req, res) => {
     try {
         const telegramMessage = `
          💸 New Payment:
-          - **Name**: ${username}
-          - **Amount:** ${amountDropdown}
-          - **UTR/UPI Reference ID:** ${utr}
-          - **Email:** ${email}
+          Name: ${username}
+          Amount: ${amountDropdown}
+          UTR/UPI Reference ID: ${utr}
+          Email: ${email}
           
         `;
         await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
