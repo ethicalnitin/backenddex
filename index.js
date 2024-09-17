@@ -26,6 +26,8 @@ app.use(cors({
   credentials: true
 }));
 
+app.options('*', cors());
+
 app.use(bodyParser.json());
 
 // Configure multer storage for file uploads
