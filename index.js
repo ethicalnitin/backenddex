@@ -96,7 +96,7 @@ app.post('/track-event', async (req, res) => {
                     client_user_agent: clientUserAgent
                 },
                 custom_data: custom_data || {} ,
-                test_event_code : TEST84327
+                
             }],
         };
 
