@@ -11,20 +11,13 @@ const FormData = require('form-data');
 const app = express();
 const PORT = process.env.PORT || 3037;
 
-// Enable CORS for allowed origins
-const allowedOrigins = ['https://tradingview.cybermafia.shop', 'https://payments.cybermafia.shop'];
+
+
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin, like mobile apps or curl requests
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS policy: Access denied for origin ${origin}`));
-    }
-  },
-  methods: ['GET', 'POST', 'OPTIONS'], // Specify allowed methods
-  credentials: true,  // Allow credentials (cookies, authorization headers)
+  origin: '*',  // Allow all origins
+  methods: ['GET', 'POST', 'OPTIONS'],  // Allow specific HTTP methods
+  credentials: true  // Enable credentials (cookies, authorization headers, etc.)
 }));
 
 // Handle CORS preflight requests
