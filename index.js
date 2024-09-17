@@ -2,16 +2,16 @@ const express = require('express');
 const axios = require('axios');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
-const cors = require('cors');  // Import cors
+const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const FormData = require('form-data'); // To send the image to Telegram
+const FormData = require('form-data');
 
 const app = express();
 const PORT = process.env.PORT || 3037;
 
-// Enable CORS for both 'tradingview.cybermafia.shop' and 'payments.cybermafia.shop'
+// Enable CORS for allowed origins
 const allowedOrigins = ['https://tradingview.cybermafia.shop', 'https://payments.cybermafia.shop'];
 
 app.use(cors({
@@ -22,8 +22,8 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST'],  // Specify allowed methods
-  credentials: true          // If you need to include cookies or authentication headers
+  methods: ['GET', 'POST'],  
+  credentials: true
 }));
 
 app.use(bodyParser.json());
@@ -56,41 +56,40 @@ function isValidIpAddress(ip) {
 // Facebook Pixel Event (CAPI) Tracking Endpoint
 app.post('/track-event', async (req, res) => {
     const { event_name, event_time, event_id, custom_data, user_data, event_source_url, action_source } = req.body;
-    console.log('Received data:', req.body);
 
     try {
-        // Ensure event_time is a valid Unix timestamp and within 7 days
+        // Ensure event_time is a valid Unix timestamp
         const eventTimestamp = event_time && event_time > Math.floor(Date.now() / 1000) - 7 * 24 * 60 * 60
             ? event_time
             : Math.floor(Date.now() / 1000);
 
-        // Hash email, phone number, and postal code using SHA-256
+        // Hash user data
         const hashedEmail = user_data.email ? crypto.createHash('sha256').update(user_data.email).digest('hex') : undefined;
         const hashedPhone = user_data.phone_number ? crypto.createHash('sha256').update(user_data.phone_number).digest('hex') : undefined;
         const hashedZip = user_data.zip ? crypto.createHash('sha256').update(user_data.zip).digest('hex') : undefined;
 
-        // Get client IP address and validate, fallback to a default valid IP if invalid
+        // Get client IP address
         let clientIpAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '8.8.8.8';
         if (!isValidIpAddress(clientIpAddress)) {
-            clientIpAddress = '8.8.8.8';  // Fallback to a valid IP address if the one provided is invalid
+            clientIpAddress = '8.8.8.8'; // Default valid IP
         }
 
         // Get client user agent
         const clientUserAgent = req.headers['user-agent'];
 
-        // Construct the payload for the API request
+        // Construct the payload for Facebook CAPI
         const payload = {
             data: [{
                 event_name,
                 event_time: eventTimestamp,
                 event_id,
-                event_source_url: event_source_url,
-                action_source: action_source,
+                event_source_url,
+                action_source,
                 user_data: {
                     em: hashedEmail,
                     ph: hashedPhone,
                     zp: hashedZip,
-                    client_ip_address: clientIpAddress,  // Valid IP
+                    client_ip_address: clientIpAddress,
                     client_user_agent: clientUserAgent
                 },
                 custom_data: custom_data || {}
@@ -99,35 +98,20 @@ app.post('/track-event', async (req, res) => {
 
         // Send the request to Facebook's API
         const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
-        console.log('Facebook API response:', response.data);
-
-        // Respond with success if the event was tracked successfully
-        res.status(200).json({ success: true, message: 'Event tracked successfully' });
+        res.status(200).json({ success: true, message: 'Event tracked successfully', data: response.data });
 
     } catch (error) {
-        if (error.response) {
-            console.error('Error response data:', error.response.data);
-            console.error('Error response status:', error.response.status);
-        } else if (error.request) {
-            console.error('No response received:', error.request);
-        } else {
-            console.error('Error', error.message);
-        }
-        res.status(500).json({
-            success: false,
-            message: 'Error tracking event',
-            error: error.response ? error.response.data : error.message
-        });
+        res.status(500).json({ success: false, message: 'Error tracking event', error: error.message });
     }
 });
 
 // Form Submission Endpoint with file upload
 app.post('/submit', upload.single('paymentScreenshot'), async (req, res) => {
-    const { amountDropdown, utr, email, username } = req.body; // Access form fields
-    const paymentScreenshot = req.file;  // Access the uploaded file
+    const { amountDropdown, utr, email, username } = req.body;
+    const paymentScreenshot = req.file;
 
     try {
-        // Build the Telegram message
+        // Telegram text message with payment details
         const telegramMessage = `
          💸 New Payment:
           Name: ${username || 'N/A'}
@@ -136,34 +120,29 @@ app.post('/submit', upload.single('paymentScreenshot'), async (req, res) => {
           Email: ${email || 'N/A'}
         `;
 
-        // Send the text message with payment details to Telegram
+        // Send the text message to Telegram
         await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
             chat_id: TELEGRAM_CHAT_ID,
             text: telegramMessage
         });
 
-        // Send the screenshot file to Telegram (if uploaded)
+        // Send the screenshot file to Telegram if uploaded
         if (paymentScreenshot) {
             const screenshotFilePath = path.resolve(paymentScreenshot.path);
 
             const formData = new FormData();
             formData.append('chat_id', TELEGRAM_CHAT_ID);
-            formData.append('photo', fs.createReadStream(screenshotFilePath));  // Send the screenshot
+            formData.append('photo', fs.createReadStream(screenshotFilePath));
 
             await axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`, formData, {
                 headers: formData.getHeaders(),
             });
         }
 
-        res.status(200).json({ success: true, message: 'Form submission tracked and Telegram notification sent, including the screenshot.' });
+        res.status(200).json({ success: true, message: 'Form submission and Telegram notification sent successfully, including screenshot.' });
 
     } catch (error) {
-        console.error('Error sending Telegram message or screenshot:', error.message);
-        res.status(500).json({
-            success: false,
-            message: 'Error sending Telegram notification',
-            error: error.message
-        });
+        res.status(500).json({ success: false, message: 'Error sending Telegram notification', error: error.message });
     }
 });
 
