@@ -16,16 +16,18 @@ const allowedOrigins = ['https://tradingview.cybermafia.shop', 'https://payments
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
+    // Allow requests with no origin, like mobile apps or curl requests
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`CORS policy: Access denied for origin ${origin}`));
     }
   },
-  methods: ['GET', 'POST','OPTIONS'],  
-  credentials: true
+  methods: ['GET', 'POST', 'OPTIONS'], // Specify allowed methods
+  credentials: true,  // Allow credentials (cookies, authorization headers)
 }));
 
+// Handle CORS preflight requests
 app.options('*', cors());
 
 app.use(bodyParser.json());
