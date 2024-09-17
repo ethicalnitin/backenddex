@@ -3,6 +3,7 @@ const axios = require('axios');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const cors = require('cors');  // Import cors
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3037;
