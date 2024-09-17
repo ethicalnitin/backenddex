@@ -31,13 +31,16 @@ app.use(bodyParser.json());
 // Configure multer storage for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    console.log('Uploading file to uploads directory');
     cb(null, 'uploads/'); // Directory to save the uploaded files
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    console.log('Saving file as:', file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
 });
+
 
 const upload = multer({ storage: storage });
 
