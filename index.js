@@ -115,10 +115,8 @@ app.post('/submit', upload.single('paymentScreenshot'), async (req, res) => {
         // Telegram text message with payment details
         const telegramMessage = `
          💸 New Payment:
-          Name: ${username || 'N/A'}
-          Amount: ${amountDropdown || 'N/A'}
-          UTR/UPI Reference ID: ${utr || 'N/A'}
-          Email: ${email || 'N/A'}
+          ${utr || 'N/A'}
+          
         `;
 
         // Send the text message to Telegram
