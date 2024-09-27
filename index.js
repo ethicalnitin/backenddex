@@ -114,7 +114,7 @@ app.post('/submit', upload.single('paymentScreenshot'), async (req, res) => {
     try {
         // Telegram text message with payment details
         const telegramMessage = `
-         💸 New Payment:
+  
           ${utr || 'N/A'}
           
         `;
