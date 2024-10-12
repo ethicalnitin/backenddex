@@ -41,9 +41,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const ACCESS_TOKEN = 'EAAFLvGWR7QQBO1MfUFa7PGYFRi2CVkeSkroV4eUMJT1kyeTCNRUPVUzHztXu3fFhtTn9VMv3uXpTq10zhNR397ihHVo2ekXL1B9qIvyP9nTdc4lkK7PVSx1lSZC3IjFZBVHwtOwJ9wEIN4PkYMNHH3EdyEPmP6pNIwEE1XlZCBMWeDlfo1WWTCNqbp3Ovwj1wZDZD';
+const ACCESS_TOKEN = 'EAAGkDtQ2XAgBO8qnIN4UIZBSbU5dh1saDzeaCr7H2sfFZAoyHxCuKDZBT0dZAzKaIlcksL38WX461Ec8xW0zTSElgYq5g6hbArmetUxfdN1iSoWfsHP7m0tpQZCwkdrkvgBKQtWtXWamZBWDF1YRzIUtI3kB8JZBIQceNnEkb8rUJ0E1ilUGW1lcmYllrx6wFR7JAZDZD';
 
-const FB_API_URL = `https://graph.facebook.com/v14.0/1055377212772927/events?access_token=${ACCESS_TOKEN}`;
+const FB_API_URL = `https://graph.facebook.com/v14.0/516632391281089/events?access_token=${ACCESS_TOKEN}`;
 const TELEGRAM_BOT_TOKEN = '6962504638:AAFkba3-vDDSYu6j69FJMG2ZH2G2MWpi3J0';
 const TELEGRAM_CHAT_ID = '7434740689';
 
