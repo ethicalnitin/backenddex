@@ -78,24 +78,24 @@ app.post('/track-event', async (req, res) => {
         const clientUserAgent = req.headers['user-agent'];
 
         // Construct the payload for Facebook CAPI
-        const payload = {
-            data: [{
-                event_name,
-                event_time: eventTimestamp,
-                event_id,
-                event_source_url,
-                action_source,
-                user_data: {
-                    em: hashedEmail,
-                    ph: hashedPhone,
-                    zp: hashedZip,
-                    client_ip_address: clientIpAddress,
-                    client_user_agent: clientUserAgent
-                },
-                custom_data: custom_data || {} ,
-                
-            }],
-        };
+       const payload = {
+    data: [{
+        event_name,
+        event_time: eventTimestamp,
+        event_id,
+        event_source_url,
+        action_source,
+        user_data: {
+            em: hashedEmail,
+            ph: hashedPhone,
+            zp: hashedZip,
+            client_ip_address: clientIpAddress,
+            client_user_agent: clientUserAgent
+        },
+        custom_data: custom_data || {},
+        test_event_code: "TEST70619"
+    }],
+};
 
         // Send the request to Facebook's API
         const response = await axios.post(FB_API_URL, payload, { timeout: 8000 });
